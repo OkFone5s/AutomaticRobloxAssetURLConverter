@@ -15,23 +15,41 @@ function extractUrls( $string ) {
 	return array_values( $post_links );
 }
 
+$mainURL = "https://example.org/asset/";
+$assetURL = ""; // only set this if you dont wanna use your real asset endpoint!
+
+// Credit Novarin
+
 function downloadAsset($ID, $Version) {
     $url = "https://assetdelivery.roblox.com/v1/asset/?id=$ID&version=$Version";
 
-    $GoonMobile = file_get_contents($url);
+    $curl = curl_init();
 
-    $IDx = rand(10000000,99999999);
+    curl_setopt_array($curl, 
+	[
+		CURLOPT_URL => $url, 
+		CURLOPT_RETURNTRANSFER => true, 
+		CURLOPT_FOLLOWLOCATION => true,		
+		CURLOPT_SSL_VERIFYHOST => false,
+		CURLOPT_SSL_VERIFYPEER => false,
+		CURLOPT_ENCODING => 'identity',
+	]);
 
-    $RealFile = file_put_contents("filestuff/".$IDx, $GoonMobile);
+    $asset = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-    return $IDx;
+    if ($httpCode !== 200 || empty($asset)) {
+        return 0;
+    } else {
+        global $assetURL;
+
+        if (!file_exists($assetURL.$ID)) {
+            file_put_contents($assetURL.$ID, $asset);
+        }
+    }
+
+    return $ID;
 }
-
-$mainURL = "https://example.org/asset/"; // your website and access link
-
-// WARNING: Place this script in your asset folder or it will NOT work correctly
-
-$assetURL = ""; // i.e. (https://example.org/asset/$assetURL) [Just use as blank] This is for special cases
 
 if (isset($_POST)) {
     $file = $_FILES["rbxmx"];
