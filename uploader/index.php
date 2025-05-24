@@ -1,5 +1,7 @@
 <?php
 
+// We are NOT doing ts
+
 echo "Fone Uploader\n";
 
 // by fone or sum
@@ -16,7 +18,7 @@ function extractUrls( $string ) {
 }
 
 $mainURL = "https://example.org/asset/";
-$assetURL = ""; // only set this if you dont wanna use your real asset endpoint!
+$assetURL = "";
 
 // Credit Novarin
 
@@ -43,12 +45,12 @@ function downloadAsset($ID, $Version) {
     } else {
         global $assetURL;
 
-        if (!file_exists($assetURL.$ID)) {
-            file_put_contents($assetURL.$ID, $asset);
+        if (!file_exists($assetURL.$ID."-".$Version)) {
+            file_put_contents($assetURL.$ID."-".$Version, $asset);
         }
     }
 
-    return $ID;
+    return $ID."-".$Version;
 }
 
 if (isset($_POST)) {
@@ -60,7 +62,7 @@ if (isset($_POST)) {
         $size = $file["size"];
         $pi = pathinfo($name);
         $ext = $pi["extension"];
-        $version = (int) $_POST["version"] ?? 1;
+        $version = (int)($_POST["version"] ?? 1);
 
         if ($ext !== "rbxmx") {
             header("Location: /errors/403.php");
@@ -91,7 +93,7 @@ if (isset($_POST)) {
         foreach ($urls as $url) {
             if (!str_contains($url, "xsd")) {
                 $ID = (int) filter_var($url, FILTER_SANITIZE_NUMBER_INT);
-                $test = downloadAsset($ID, 1);
+                $test = downloadAsset($ID, $version);
                 $urlx = $mainURL.$assetURL.$test."</url></Content>";
                 
                 $filestuff = str_replace($url, $urlx, $filestuff);
