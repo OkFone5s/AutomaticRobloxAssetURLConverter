@@ -74,13 +74,9 @@ if (isset($_POST)) {
             exit;
         }
 
-        $ID = uniqid(); // Generate a ID but you could also just use SQL like a little bitch who cares about organization FUCK YOU
-
         $FuckassNumber = rand(10000,99999);
 
-        move_uploaded_file($tmpName, $assetURL.$name."-".$FuckassNumber);
-
-        $filestuff = file_get_contents($mainURL. $assetURL . $name . "-" . $FuckassNumber);
+        $filestuff = file_get_contents($tmpName);
 
         $urls = extractUrls($filestuff);
 
@@ -99,8 +95,6 @@ if (isset($_POST)) {
                 $filestuff = str_replace($url, $urlx, $filestuff);
             }
         }
-
-        unlink($assetURL.$name."-".$FuckassNumber);
 
         file_put_contents($assetURL.$name."-".$FuckassNumber, $filestuff);
 
